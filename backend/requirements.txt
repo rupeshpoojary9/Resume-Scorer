@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-multipart
+spacy
+pdfminer.six
+python-docx
+nltk
+openai
+python-dotenv
