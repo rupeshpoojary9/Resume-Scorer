@@ -11,7 +11,7 @@ class GitLabService:
 
     def list_projects(self, search: str = None) -> List[Dict[str, Any]]:
         """List projects accessible by the user."""
-        whitelist = ["neil", "eddie", "autobots", "eddie-v2", "marvin"]
+        whitelist = ["neil", "eddie", "autobots", "eddie-v2", "marvin", "asmi"]
         found_projects = []
         seen_ids = set()
 
