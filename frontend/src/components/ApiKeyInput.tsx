@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApiKey } from '@/contexts/ApiKeyContext';

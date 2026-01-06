@@ -1,0 +1,10 @@
+/Users/rupeshpoojary/Drive/Projects/Resume Scorer/test_timelogs.py:19: UserWarning: Calling a `list()` method without specifying `get_all=True` or `iterator=True` will return a maximum of 50 items. Your query returned 50 of 432 items. See https://python-gitlab.readthedocs.io/en/v7.0.0/api-usage.html#pagination for more details. If this was done intentionally, then this warning can be supressed by adding the argument `get_all=False` to the `list()` call. (python-gitlab: /Users/rupeshpoojary/Drive/Projects/Resume Scorer/test_timelogs.py:19)
+  issues = project.issues.list(state='all', order_by='updated_at', per_page=50)
+Connecting to https://gitlabproxy.lightinfosys.com...
+Project: Neil
+
+Found Issue #324 with time spent: 1020s
+  Checking notes for time logs...
+    - Note (2025-12-12T15:13:05.874Z): added 15m of time spent at 2025-12-11
+    - Note (2025-11-28T15:01:46.343Z): added 1m of time spent at 2025-11-27
+    - Note (2025-11-27T13:14:56.287Z): added 1m of time spent at 2025-11-26

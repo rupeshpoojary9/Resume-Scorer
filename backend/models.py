@@ -1,7 +1,10 @@
 from sqlalchemy import Column, Integer, String, Text, JSON, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .database import Base
+try:
+    from .database import Base
+except ImportError:
+    from database import Base
 
 class Resume(Base):
     __tablename__ = 'resumes'

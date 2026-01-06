@@ -1,39 +1,46 @@
 import os
 import json
-from openai import OpenAI
 from pathlib import Path
 from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import SystemMessage, HumanMessage
 
 # Load .env from backend directory
-env_path = Path(__file__).resolve().parent.parent.parent / "backend" / ".env"
-# Or more simply, since this file is in backend/services/
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-api_key = os.getenv("OPENAI_API_KEY")
-client = None
-if api_key:
-    client = OpenAI(api_key=api_key)
-else:
-    print("WARNING: OPENAI_API_KEY not found. AI features will fail.")
-
-def get_client(api_key: str = None):
-    if api_key:
-        return OpenAI(api_key=api_key)
+def get_llm(api_key: str = None):
+    provider = os.getenv("LLM_PROVIDER", "openai").lower()
     
-    # Fallback to env var
-    env_key = os.getenv("OPENAI_API_KEY")
-    if env_key:
-        return OpenAI(api_key=env_key)
+    # If provider is explicitly set to gemini, try it first
+    if provider == "gemini":
+        gemini_key = os.getenv("GEMINI_API_KEY")
+        if gemini_key:
+            return ChatGoogleGenerativeAI(model="gemini-3-flash-preview", google_api_key=gemini_key, temperature=0)
+            
+    # Default / OpenAI path
+    openai_key = api_key or os.getenv("OPENAI_API_KEY")
+    if openai_key and not openai_key.startswith("sk-placeholder"):
+        try:
+            return ChatOpenAI(model="gpt-4o-mini", api_key=openai_key, temperature=0)
+        except:
+            pass
+            
+    # Fallback to Gemini if OpenAI failed or wasn't selected but is available
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if gemini_key:
+        return ChatGoogleGenerativeAI(model="gemini-3-flash-preview", google_api_key=gemini_key, temperature=0)
+        
     return None
 
 def parse_resume_with_ai(text: str, api_key: str = None) -> dict:
     """
-    Parses resume text using OpenAI to extract structured data.
+    Parses resume text using AI to extract structured data.
     """
-    client = get_client(api_key)
-    if not client:
-        return {"error": "OpenAI API key not configured"}
+    llm = get_llm(api_key)
+    if not llm:
+        return {"error": "No valid AI API key configured (OpenAI or Gemini)"}
 
     prompt = f"""
     You are an expert ATS parser. Extract the following fields from the resume text below and return them as a valid JSON object.
@@ -49,32 +56,36 @@ def parse_resume_with_ai(text: str, api_key: str = None) -> dict:
     - summary (string, rewrite to 3 lines max)
     
     Resume Text:
-    {text[:4000]}  # Truncate to avoid token limits if necessary, though 4o handles large context
+    {text[:10000]}
     
     Return ONLY valid JSON.
     """
     
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a precise data extraction assistant. Output only JSON."},
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"}
-        )
-        return json.loads(response.choices[0].message.content)
+        messages = [
+            SystemMessage(content="You are a precise data extraction assistant. Output only JSON."),
+            HumanMessage(content=prompt)
+        ]
+        response = llm.invoke(messages)
+        content = response.content
+        # Clean up markdown code blocks if present
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+            
+        return json.loads(content)
     except Exception as e:
         print(f"Error parsing resume with AI: {e}")
         return {}
 
 def parse_jd_with_ai(text: str, api_key: str = None) -> dict:
     """
-    Parses JD text using OpenAI to extract requirements.
+    Parses JD text using AI to extract requirements.
     """
-    client = get_client(api_key)
-    if not client:
-        return {"error": "OpenAI API key not configured"}
+    llm = get_llm(api_key)
+    if not llm:
+        return {"error": "No valid AI API key configured"}
 
     prompt = f"""
     You are an expert Recruiter. Extract the following fields from the Job Description text below and return them as a valid JSON object.
@@ -90,32 +101,35 @@ def parse_jd_with_ai(text: str, api_key: str = None) -> dict:
     - mandatory_keywords (list of strings - deal breakers)
     
     JD Text:
-    {text[:4000]}
+    {text[:10000]}
     
     Return ONLY valid JSON.
     """
     
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a precise data extraction assistant. Output only JSON."},
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"}
-        )
-        return json.loads(response.choices[0].message.content)
+        messages = [
+            SystemMessage(content="You are a precise data extraction assistant. Output only JSON."),
+            HumanMessage(content=prompt)
+        ]
+        response = llm.invoke(messages)
+        content = response.content
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+            
+        return json.loads(content)
     except Exception as e:
         print(f"Error parsing JD with AI: {e}")
         return {}
 
 def score_candidate_with_ai(resume_json: dict, jd_json: dict, api_key: str = None) -> dict:
     """
-    Scores a candidate against a JD using OpenAI.
+    Scores a candidate against a JD using AI.
     """
-    client = get_client(api_key)
-    if not client:
-        return {"error": "OpenAI API key not configured"}
+    llm = get_llm(api_key)
+    if not llm:
+        return {"error": "No valid AI API key configured"}
 
     prompt = f"""
     You are an expert HR Recruiter. Evaluate the candidate based on the Job Description.
@@ -148,15 +162,18 @@ def score_candidate_with_ai(resume_json: dict, jd_json: dict, api_key: str = Non
     """
     
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a fair and precise recruiter. Output only JSON."},
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"}
-        )
-        return json.loads(response.choices[0].message.content)
+        messages = [
+            SystemMessage(content="You are a fair and precise recruiter. Output only JSON."),
+            HumanMessage(content=prompt)
+        ]
+        response = llm.invoke(messages)
+        content = response.content
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+            
+        return json.loads(content)
     except Exception as e:
         print(f"Error scoring candidate with AI: {e}")
         return {}

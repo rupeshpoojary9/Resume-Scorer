@@ -1,36 +1,34 @@
-# Resume Scorer 🚀
+# e42 Foundry 🚀
 
-An AI-powered Applicant Tracking System (ATS) that helps HR professionals and recruiters instantly rank and analyze candidate resumes against specific job descriptions.
+**e42 Foundry** is an internal platform designed to automate processes and empower the e42 team with AI-driven tools. It serves as a central hub for productivity applications that streamline recruitment, project management, and market intelligence.
 
-![Resume Scorer Dashboard](https://github.com/user-attachments/assets/placeholder-image) 
-*(Note: You can add a screenshot here later)*
+## 📦 Included Applications
 
-## ✨ Features
+### 1. Resume Scorer
+An AI-powered Applicant Tracking System (ATS) that helps HR professionals instantly rank and analyze candidate resumes.
+-   **Features**: Semantic scoring against JDs, detailed skill gap analysis, and instant candidate ranking.
 
--   **Multi-Role Support**: Manage multiple job roles simultaneously.
--   **AI-Powered Scoring**: Uses OpenAI to analyze resumes against Job Descriptions (JDs) with deep semantic understanding.
--   **Instant Ranking**: Get a ranked list of candidates with scores (0-100) and verdicts (Highly Relevant, Relevant, etc.).
--   **Detailed Analysis**: View comprehensive reports for each candidate, including:
-    -   Matching Skills
-    -   Missing Skills
-    -   Experience Relevance
-    -   Red Flags
-    -   AI-generated Summary
--   **Drag & Drop Interface**: Easy upload for JDs and Resumes (PDF, DOCX, TXT).
--   **Secure**: Your OpenAI API Key is stored locally in your browser.
+### 2. GitLab Tracker
+A comprehensive project management dashboard for engineering teams.
+-   **Features**: Real-time issue tracking, "Missing Time" alerts for daily compliance, and a visual status breakdown of the development pipeline.
+
+### 3. Neil (Competitive Intelligence)
+An autonomous AI agent for deep-dive market research.
+-   **Features**: Automated competitor discovery, SWOT analysis, "Battle Cards" for sales enablement, and risk/strategy radar charts.
 
 ## 🛠️ Tech Stack
 
 -   **Frontend**: React, Vite, Tailwind CSS, Radix UI, Lucide React.
 -   **Backend**: FastAPI (Python), SQLAlchemy, SQLite.
--   **AI**: OpenAI API (GPT-4o/GPT-3.5-turbo).
+-   **AI**: OpenAI API (GPT-4o) & LangChain.
 
 ## 🚀 Setup Instructions
 
 ### Prerequisites
--   Python 3.8+
--   Node.js 16+
+-   Python 3.12+
+-   Node.js 20+
 -   OpenAI API Key
+-   GitLab Access Token (for Tracker)
 
 ### 1. Backend Setup
 
@@ -41,9 +39,12 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the `backend` directory (optional, as you can enter the key in the UI):
+Create a `.env` file in the `backend` directory:
 ```env
-OPENAI_API_KEY=your_api_key_here
+OPENAI_API_KEY=your_key
+GEMINI_API_KEY=your_key
+GITLAB_TOKEN=your_token
+GITLAB_URL=https://gitlab.example.com
 ```
 
 Run the server:
@@ -61,18 +62,16 @@ npm run dev
 
 The app will be available at `http://localhost:5173`.
 
-## 📖 How to Use
+## 🐳 Docker Deployment
 
-1.  **Enter API Key**: On the home page or dashboard, enter your OpenAI API Key. It will be saved locally.
-2.  **Create a Role**: Click "Create New Role" and upload a Job Description file.
-3.  **Upload Resumes**: Click on the created role card to enter the dashboard. Drag and drop candidate resumes.
-4.  **Analyze**: Click "Analyze Candidates" to let the AI do its magic.
-5.  **Review**: Check the ranked list and click "View" on any candidate for a detailed breakdown.
+To run the entire suite in production:
+
+```bash
+docker-compose up --build -d
+```
+-   **Frontend**: Port 8081
+-   **Backend**: Port 8003
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License.
+This is an internal tool for e42. Please follow the standard contribution guidelines for the product team.

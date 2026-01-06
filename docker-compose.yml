@@ -1,0 +1,54 @@
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8003:8001"
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/resume_scorer
+    depends_on:
+      - db
+    restart: always
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+      - infinitetalk
+    restart: always
+
+  db:
+    image: postgres:15.10-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=resume_scorer
+    restart: always
+
+  infinitetalk:
+    build: ./InfiniteTalk
+    volumes:
+      - ./InfiniteTalk:/app
+      - ./InfiniteTalk/weights:/app/weights
+      - ./InfiniteTalk/results:/app/results
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - "8002:8000"
+    # Keep the container running so we can exec into it
+    # command: tail -f /dev/null # Removed to let Dockerfile CMD take over
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

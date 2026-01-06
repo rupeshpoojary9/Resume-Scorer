@@ -16,7 +16,7 @@ export const clearApiKey = () => {
 };
 
 const api = axios.create({
-    baseURL: 'http://localhost:8001',
+    baseURL: '/api',
 });
 
 api.interceptors.request.use((config) => {

@@ -1,0 +1,8 @@
+weights/
+results/
+__pycache__/
+*.pyc
+.git/
+.env
+.DS_Store
+venv/

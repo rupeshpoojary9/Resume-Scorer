@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { setApiKey as setGlobalApiKey, getApiKey, clearApiKey as clearGlobalApiKey } from '@/lib/api';
 
 interface ApiKeyContextType {
